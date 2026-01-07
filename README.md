@@ -1,21 +1,25 @@
-# Build and Deploy a Github-like App | React, MongoDB, Express.js, Passport.js
+# InnoLink - Collaborative Development Platform
 
-![Demo App](https://i.ibb.co/xfpddW2/Screenshot-22.png)
+A modern MERN stack application for collaborative code development with real-time editing, AI-powered code assistance, and GitHub integration.
 
-[Video Tutorial on Youtube](https://youtu.be/P6UyvDhNTbg)
+## Features
 
-Some Features:
+-   ⚙️ **Tech stack**: MERN + TailwindCSS + GitHub API
+-   🔑 **Authentication**: GitHub OAuth with Passport.js
+-   👾 **GitHub Integration**: Fetch user profiles and repositories
+-   💬 **Real-time Chat**: WebSocket-based messaging
+-   💻 **Live Code Editor**: Collaborative code editing with Monaco Editor
+-   🤖 **AI Assistant**: Google Gemini-powered coding assistant
+-   🚀 **Code Review**: Real-time collaborative code review rooms
+-   🐛 **Error handling**: Comprehensive error handling on both client and server
 
--   ⚙️ Tech stack: MERN + TailwindCSS + Github API
--   🔑 Authentication && Authorization with Passport.js (Github Auth)
--   👾 Fetch Github User Profiles and Repos
--   🚀 Filter Repos on the Client
--   🎭 Learn behind the scenes for authentication
--   🐛 Error handling (both on the server and on the client)
--   🎃 At the end DEPLOY like a pro for FREE!
--   ⏳ And much more!
+## Documentation
+
+- [Deployment Guide](docs/DEPLOYMENT.md) - Complete deployment guide for Vercel (Frontend) + Render (Backend)
 
 ### Setup .env file
+
+Create a `.env` file in the `backend/` folder:
 
 ```js
 PORT=5000
@@ -24,16 +28,34 @@ GITHUB_API_KEY=
 GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 CLIENT_BASE_URL=
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-pro
 ```
 
-### Build the app
+### Install Dependencies
 
 ```shell
-npm run build
+# Install backend dependencies
+cd backend
+npm install
+
+# Install frontend dependencies (from root)
+cd ../frontend
+npm install
 ```
 
 ### Start the app
 
 ```shell
+# From backend folder
+cd backend
 npm start
+```
+
+### Development
+
+```shell
+# From backend folder
+cd backend
+npm run dev
 ```

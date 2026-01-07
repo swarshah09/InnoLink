@@ -17,56 +17,60 @@ const Repo = ({ repo }) => {
 	};
 
 	return (
-		<li className='mb-10 ms-7'>
-			<span
-				className='absolute flex items-center justify-center w-6 h-6 bg-blue-100
-    rounded-full -start-3 ring-8 ring-white'
-			>
-				<FaCodeBranch className='w-5 h-5 text-blue-800' />
-			</span>
-			<div className='flex gap-2 items-center flex-wrap'>
-				<a
-					href={repo.html_url}
-					target='_blank'
-					rel='noreferrer'
-					className='flex items-center gap-2 text-lg font-semibold'
-				>
-					{repo.name}
-				</a>
-				<span
-					className='bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5
-        py-0.5 rounded-full flex items-center gap-1'
-				>
-					<FaRegStar /> {repo.stargazers_count}
-				</span>
-				<span
-					className='bg-purple-100 text-purple-800 text-xs font-medium
-         px-2.5 py-0.5 rounded-full flex items-center gap-1'
-				>
-					<FaCodeFork /> {repo.forks_count}
-				</span>
-				<span
-					onClick={() => handleCloneClick(repo)}
-					className='cursor-pointer bg-green-100 text-green-800 text-xs
-        font-medium px-2.5 py-0.5 rounded-full flex items-center gap-1'
-				>
-					<FaCopy /> Clone
-				</span>
+		<div className='surface rounded-xl border-white/10 p-4 hover:border-cyan-400/40 transition h-full flex flex-col'>
+			<div className='flex flex-wrap items-start gap-3 justify-between'>
+				<div className='flex items-center gap-3 flex-1 min-w-[200px]'>
+					<div className='h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center'>
+						<FaCodeBranch className='w-5 h-5 text-cyan-300' />
+					</div>
+					<div>
+						<a
+							href={repo.html_url}
+							target='_blank'
+							rel='noreferrer'
+							className='text-lg font-semibold hover:text-cyan-200 transition'
+						>
+							{repo.name}
+						</a>
+						<time className='block text-xs text-white/50'>Created {formattedDate}</time>
+					</div>
+				</div>
+
+				<div className='flex flex-wrap gap-2'>
+					<span className='chip bg-white/5 border border-white/10 text-white/80'>
+						<FaRegStar /> {repo.stargazers_count}
+					</span>
+					<span className='chip bg-white/5 border border-white/10 text-white/80'>
+						<FaCodeFork /> {repo.forks_count}
+					</span>
+					<button
+						onClick={() => handleCloneClick(repo)}
+						className='chip bg-cyan-500/10 border border-cyan-400/40 text-cyan-50 hover:bg-cyan-500/20 transition'
+						type='button'
+					>
+						<FaCopy /> Clone URL
+					</button>
+				</div>
 			</div>
 
-			<time
-				className='block my-1 text-xs font-normal leading-none
-     text-gray-400'
-			>
-				Released on {formattedDate}
-			</time>
-			<p className='mb-4 text-base font-normal text-gray-500'>
+			<p className='mt-3 text-sm text-white/80 flex-1'>
 				{repo.description ? repo.description.slice(0, 500) : "No description provided"}
 			</p>
-			{PROGRAMMING_LANGUAGES[repo.language] ? (
-				<img src={PROGRAMMING_LANGUAGES[repo.language]} alt='Programming language icon' className='h-8' />
-			) : null}
-		</li>
+
+			<div className='mt-4 flex items-center gap-3 flex-wrap'>
+				{PROGRAMMING_LANGUAGES[repo.language] ? (
+					<span className='chip bg-white/5 border border-white/10 text-white/80'>
+						<img src={PROGRAMMING_LANGUAGES[repo.language]} alt='Programming language icon' className='h-5 w-5' />
+						{repo.language}
+					</span>
+				) : null}
+				{repo.topics?.slice(0, 3).map((topic) => (
+					<span key={topic} className='chip bg-white/5 border border-white/10 text-white/70'>
+						#{topic}
+					</span>
+				))}
+			</div>
+		</div>
 	);
 };
 export default Repo;

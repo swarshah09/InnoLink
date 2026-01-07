@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { API_URL } from "../config/env.js";
 
 export const AuthContext = createContext();
 
@@ -16,7 +17,7 @@ export const AuthContextProvider = ({ children }) => {
 		const checkUserLoggedIn = async () => {
 			setLoading(true);
 			try {
-				const res = await fetch("http://localhost:8000/api/auth/check", { credentials: "include" });
+				const res = await fetch(`${API_URL}/api/auth/check`, { credentials: "include" });
 				const data = await res.json();
 				setAuthUser(data.user); // null or authenticated user object
 			} catch (error) {

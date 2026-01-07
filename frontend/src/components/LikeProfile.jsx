@@ -1,6 +1,7 @@
 import { FaHeart } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
+import { API_URL } from "../config/env.js";
 
 const LikeProfile = ({ userProfile }) => {
 	const { authUser } = useAuthContext();
@@ -9,7 +10,7 @@ const LikeProfile = ({ userProfile }) => {
 
 	const handleLikeProfile = async () => {
 		try {
-			const res = await fetch(`http://localhost:8000/api/users/like/${userProfile.login}`, {
+			const res = await fetch(`${API_URL}/api/users/like/${userProfile.login}`, {
 				method: "POST",
 				credentials: "include",
 			});

@@ -1,39 +1,33 @@
 import { FaGithub, FaUnlockAlt } from "react-icons/fa";
-import { Link } from "react-router-dom";
 import { handleLoginWithGithub } from "../lib/function";
 
 const SignUpPage = () => {
 	return (
-		<div className='flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0'>
-			<div className='w-full rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 bg-glass'>
-				<div className='p-6 spacey-y-4 md:space-y-6 sm:p-8'>
-					<h1 className='text-xl font-bold md:text-2xl text-center'>Create Account</h1>
-
-					<button
-						type='button'
-						className='text-white bg-[#24292F] hover:bg-[#24292F]/90 focus:ring-4
-						focus:ring-[#24292F]/50 font-medium rounded-lg flex gap-2 p-2 items-center w-full 
-						text-center justify-center'
-						onClick={handleLoginWithGithub}
-					>
-						<FaGithub className='w-5 h-5' />
-						Sign up with Github
-					</button>
-
-					<p className='text-gray-300'>
-						By signing up, you will unlock all the features of the app.
-						<span>
-							<FaUnlockAlt className='w-4 h-4 inline mx-2' />
-						</span>
+		<div className='min-h-[70vh] flex flex-col items-center justify-center px-6 py-10'>
+			<div className='panel w-full sm:max-w-md p-6 border-white/10 space-y-6'>
+				<div className='space-y-2 text-center'>
+					<p className='pill bg-emerald-500/10 text-emerald-100 border border-emerald-500/30 inline-flex'>
+						Unified GitHub flow
 					</p>
-
-					<p className='text-sm font-light text-gray-500'>
-						Already have an account?{" "}
-						<Link to='/login' className='font-medium text-primary-600 hover:underline text-blue-600'>
-							Login
-						</Link>
+					<h1 className='text-2xl font-semibold'>Sign in or create account</h1>
+					<p className='text-white/60 text-sm'>
+						Use GitHub once—new users are provisioned automatically; returning users sign in instantly.
 					</p>
 				</div>
+
+				<button
+					type='button'
+					className='btn-primary w-full justify-center'
+					onClick={handleLoginWithGithub}
+				>
+					<FaGithub className='w-5 h-5' />
+					Continue with GitHub
+				</button>
+
+				<p className='text-white/70 text-sm text-center'>
+					By signing up, you enable cross-repo collaboration & notifications.
+					<FaUnlockAlt className='w-4 h-4 inline mx-2 text-emerald-200' />
+				</p>
 			</div>
 		</div>
 	);

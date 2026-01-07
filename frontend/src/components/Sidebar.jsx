@@ -1,99 +1,84 @@
-import { Link } from "react-router-dom";
-import { IoHomeSharp } from "react-icons/io5";
-import { FaHeart } from "react-icons/fa";
-import { MdOutlineExplore } from "react-icons/md";
+import { Link, NavLink } from "react-router-dom";
+import { IoHomeSharp, IoChatboxEllipses } from "react-icons/io5";
+import { FaHeart, FaCode } from "react-icons/fa";
+import { MdOutlineExplore, MdEditDocument } from "react-icons/md";
 import { PiSignInBold } from "react-icons/pi";
-import { MdEditDocument } from "react-icons/md";
 import Logout from "./Logout";
 import { useAuthContext } from "../context/AuthContext";
-import { IoChatboxEllipses } from "react-icons/io5";
-import { FaCode } from "react-icons/fa";
+
+const NavItem = ({ to, icon: Icon, label }) => (
+	<NavLink
+		to={to}
+		className={({ isActive }) =>
+			`group flex items-center gap-3 px-3 py-2 rounded-xl border transition hover:border-cyan-400/60 hover:bg-white/5 ${
+				isActive ? "border-cyan-400/40 bg-white/5 shadow-lg shadow-cyan-900/30" : "border-white/10"
+			}`
+		}
+	>
+		<Icon size={20} className='text-white/80 group-hover:text-white' />
+		<span className='hidden sm:block text-sm font-medium'>{label}</span>
+	</NavLink>
+);
+
+const ExternalItem = ({ href, icon: Icon, label }) => (
+	<a
+		href={href}
+		target='_blank'
+		rel='noopener noreferrer'
+		className='group flex items-center gap-3 px-3 py-2 rounded-xl border border-white/10 transition hover:border-cyan-400/60 hover:bg-white/5'
+	>
+		<Icon size={20} className='text-white/80 group-hover:text-white' />
+		<span className='hidden sm:block text-sm font-medium'>{label}</span>
+	</a>
+);
 
 const Sidebar = () => {
-	const { authUser } = useAuthContext();
+	const { authUser, loading } = useAuthContext();
 
 	return (
-		<aside
-			className='flex flex-col items-center min-w-12 sm:w-16 sticky top-0 left-0 h-screen py-8
-      overflow-y-auto border-r bg-glass'
-		>
-			<nav className='h-full flex flex-col gap-3'>
-				<Link to='/' className='flex justify-center'>
-					<img className='h-8' src='/sslg.png' alt='Github Logo' />
-				</Link>
+		<aside className='sticky top-0 left-0 min-h-screen w-[76px] sm:w-64 border-r border-white/10 bg-black/30 backdrop-blur-2xl flex-shrink-0 flex flex-col px-3 py-6 gap-6 z-20'>
+			<Link to='/' className='flex items-center gap-3 px-3'>
+				<div className='h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center text-lg font-bold shadow-lg shadow-cyan-900/30'>
+					<img className='h-6 w-6' src='/logo.png' alt='Logo' />
+				</div>
+				<div className='hidden sm:flex flex-col leading-tight'>
+					<span className='text-xs uppercase tracking-[0.25em] text-white/60'>Innovation</span>
+					<span className='text-sm font-semibold'>InnoLink</span>
+				</div>
+			</Link>
 
-				<Link
-					to='/'
-					className='p-1.5 flex justify-center transition-colors duration-200 rounded-lg 
-					hover:bg-gray-800'
-				>
-					<IoHomeSharp size={20} />
-				</Link>
+			{authUser && (
+				<div className='flex flex-col gap-2'>
+					<p className='hidden sm:block text-[11px] uppercase tracking-[0.2em] text-white/50 px-3'>workspace</p>
+					<NavItem to='/' icon={IoHomeSharp} label='Home' />
+					<NavItem to='/explore' icon={MdOutlineExplore} label='Explore' />
+					<NavItem to='/likes' icon={FaHeart} label='Activity' />
+					<NavItem to='/chat' icon={IoChatboxEllipses} label='Realtime chat' />
+					<NavItem to='/code' icon={FaCode} label='Live code editor' />
+				</div>
+			)}
 
-				{!authUser && (
-					<Link
-						to='/likes'
-						className='p-1.5 flex justify-center transition-colors duration-200 rounded-lg hover:bg-gray-800'
-					>
-						<FaHeart size={22} />
-					</Link>
+			<div className='flex flex-col gap-2'>
+				<p className='hidden sm:block text-[11px] uppercase tracking-[0.2em] text-white/50 px-3'>auth</p>
+				{loading && (
+					<div className='px-3 py-2 text-xs text-white/50'>Checking session…</div>
 				)}
-
-				{!authUser && (
-					<Link
-						to='/explore'
-						className='p-1.5 flex justify-center transition-colors duration-200 rounded-lg hover:bg-gray-800'
-					>
-						<MdOutlineExplore size={25} />
-					</Link>
+				{!loading && !authUser && (
+					<>
+						<NavItem to='/login' icon={PiSignInBold} label='Sign in' />
+						<NavItem to='/signup' icon={MdEditDocument} label='Create account' />
+					</>
 				)}
-
-				{!authUser && (
-					<Link
-						to='/login'
-						className='p-1.5 focus:outline-nones transition-colors duration-200 rounded-lg hover:bg-gray-800'
-					>
-						<PiSignInBold size={25} />
-					</Link>
-				)}
-
-				{!authUser && (
-					<Link
-						to='/signup'
-						className='p-1.5 focus:outline-nones transition-colors duration-200 rounded-lg hover:bg-gray-800'
-					>
-						<MdEditDocument size={25} />
-					</Link>
-				)}
-
-				{!authUser && (
-					<a
-						href="https://msgsmpl.onrender.com" // Replace this with your desired URL
-						target="_blank" // Opens the link in a new tab
-						rel="noopener noreferrer" // Ensures security for external links
-						className="p-1.5 focus:outline-none transition-colors duration-200 rounded-lg hover:bg-gray-800"
-					>
-						<IoChatboxEllipses size={25} />
-					</a>
-				)}
-
-				{!authUser && (
-					<a
-						href="http://localhost:8001/" // Replace this with your desired URL
-						target="_blank" // Opens the link in a new tab
-						rel="noopener noreferrer" // Ensures security for external links
-						className="p-1.5 focus:outline-none transition-colors duration-200 rounded-lg hover:bg-gray-800"
-					>
-						<FaCode size={25} />
-					</a>
-				)}
-
-				{!authUser && (
-					<div className='flex flex-col gap-2 mt-auto'>
+				{!loading && authUser && (
+					<div className='px-1'>
 						<Logout />
 					</div>
 				)}
-			</nav>
+			</div>
+
+			<div className='mt-auto pb-2 px-1 hidden sm:block text-[11px] uppercase tracking-[0.2em] text-white/40'>
+				built for teams
+			</div>
 		</aside>
 	);
 };

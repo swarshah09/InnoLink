@@ -7,128 +7,97 @@ import { formatMemberSince } from "../utils/functions";
 import LikeProfile from "./LikeProfile";
 
 const ProfileInfo = ({ userProfile }) => {
-	// const userProfile = {
-	// 	avatar_url: "https://ps.w.org/user-avatar-reloaded/assets/icon-256x256.png?rev=2540745",
-	// 	bio: "👨🏻‍💻👨🏻‍💻👨🏻‍💻",
-	// 	email: "johndoe@gmail.com",
-	// 	followers: 100,
-	// 	following: 200,
-	// 	html_url: "https://github.com/burakorkmez",
-	// 	location: "Somewhere, Earth",
-	// 	name: "John Doe",
-	// 	public_gists: 100,
-	// 	public_repos: 100,
-	// 	twitter_username: "johndoe",
-	// 	login: "johndoe",
-	// };
-
 	const memberSince = formatMemberSince(userProfile?.created_at);
 
 	return (
-		<div className='lg:w-1/3 w-full flex flex-col gap-2 lg:sticky md:top-10'>
-			<div className='bg-glass rounded-lg p-4'>
-				<div className='flex gap-3 items-center'>
-					{/* User Avatar */}
-					<a href={userProfile?.html_url} target='_blank' rel='noreferrer'>
-						<img src={userProfile?.avatar_url} className='rounded-md w-24 h-24 mb-2' alt='' />
-					</a>
-					{/* View on Github */}
-
-					<div className='flex gap-2 items-center flex-col'>
-						<LikeProfile userProfile={userProfile} />
-						<a
-							href={userProfile?.html_url}
-							target='_blank'
-							rel='noreferrer'
-							className='bg-glass font-medium w-full text-xs p-2 rounded-md cursor-pointer border border-blue-400 flex items-center gap-2'
-						>
-							<FaEye size={16} />
-							View on Github
-						</a>
+		<div className='w-full flex flex-col lg:sticky lg:top-10'>
+			<div className='panel p-6 border-white/10 space-y-5 overflow-hidden h-full flex flex-col gap-5'>
+				<div className='relative rounded-2xl border border-white/5 overflow-hidden'>
+					<div className='absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-indigo-500/10 to-transparent pointer-events-none' />
+					<div className='flex flex-col sm:flex-row items-start sm:items-center gap-5 p-5'>
+						<div className='relative shrink-0'>
+							<div className='absolute -inset-1 rounded-2xl bg-cyan-500/10 blur-xl' />
+							<a href={userProfile?.html_url} target='_blank' rel='noreferrer' className='relative block'>
+								<img
+									src={userProfile?.avatar_url}
+									className='rounded-2xl w-28 h-28 object-cover border border-white/10 shadow-xl shadow-cyan-900/30'
+									alt=''
+								/>
+							</a>
+						</div>
+						<div className='flex-1 space-y-2 min-w-0'>
+							<div className='flex items-center gap-2'>
+								<h3 className='text-xl font-semibold truncate'>{userProfile?.name || userProfile?.login}</h3>
+								<LikeProfile userProfile={userProfile} />
+							</div>
+							<p className='text-sm text-white/60 truncate'>{userProfile?.login}</p>
+							<div className='flex flex-wrap gap-3 mt-2'>
+								<a
+									href={userProfile?.html_url}
+									target='_blank'
+									rel='noreferrer'
+									className='btn-ghost w-fit text-xs px-3 py-1'
+								>
+									<FaEye size={14} />
+									View on GitHub
+								</a>
+								{userProfile?.email && (
+									<span className='chip bg-white/5 border border-white/10 text-white/70 text-xs'>
+										{userProfile.email}
+									</span>
+								)}
+							</div>
+						</div>
 					</div>
 				</div>
 
-				{/* User Bio */}
 				{userProfile?.bio ? (
-					<div className='flex items-center gap-2'>
-						<TfiThought />
-						<p className='text-sm'>{userProfile?.bio.substring(0, 60)}...</p>
+					<div className='surface p-4 rounded-lg border-white/5 flex gap-3 items-start'>
+						<TfiThought className='mt-0.5 text-cyan-300' />
+						<p className='text-sm text-white/80 leading-relaxed'>{userProfile?.bio}</p>
 					</div>
 				) : null}
 
-				{/* Location */}
-				{userProfile?.location ? (
-					<div className='flex items-center gap-2'>
-						<IoLocationOutline />
-						{userProfile?.location}
+				<div className='grid grid-cols-2 gap-3 text-sm'>
+					<div className='surface rounded-lg p-4 border-white/5'>
+						<p className='text-white/60 text-xs uppercase tracking-[0.2em]'>Member since</p>
+						<p className='font-semibold'>{memberSince}</p>
 					</div>
-				) : null}
-
-				{/* Twitter Username */}
-				{userProfile?.twitter_username ? (
-					<a
-						href={`https://twitter.com/${userProfile.twitter_username}`}
-						target='_blank'
-						rel='noreferrer'
-						className='flex items-center gap-2 hover:text-sky-500'
-					>
-						<FaXTwitter />
-						{userProfile?.twitter_username}
-					</a>
-				) : null}
-
-				{/* Member Since Date */}
-				<div className='my-2'>
-					<p className='text-gray-600 font-bold text-sm'>Member since</p>
-					<p className=''>{memberSince}</p>
-				</div>
-
-				{/* Email Address */}
-				{userProfile?.email && (
-					<div className='my-2'>
-						<p className='text-gray-600 font-bold text-sm'>Email address</p>
-						<p className=''>{userProfile.email}</p>
+					<div className='surface rounded-lg p-4 border-white/5'>
+						<p className='text-white/60 text-xs uppercase tracking-[0.2em]'>Visibility</p>
+						<p className='font-semibold break-words'>{userProfile?.type || "Developer"}</p>
 					</div>
-				)}
-
-				{/* Full Name */}
-				{userProfile?.name && (
-					<div className='my-2'>
-						<p className='text-gray-600 font-bold text-sm'>Full name</p>
-						<p className=''>{userProfile?.name}</p>
-					</div>
-				)}
-
-				{/* Username */}
-				<div className='my-2'>
-					<p className='text-gray-600 font-bold text-sm'>Username</p>
-					<p className=''>{userProfile?.login}</p>
 				</div>
 			</div>
 
-			<div className='flex flex-wrap gap-2 mx-4'>
-				{/* Followers Count */}
-				<div className='flex items-center gap-2 bg-glass rounded-lg p-2 flex-1 min-w-24'>
-					<RiUserFollowFill className='w-5 h-5 text-blue-800' />
-					<p className='text-xs'>Followers: {userProfile?.followers}</p>
+			<div className='grid grid-cols-2 gap-3'>
+				<div className='surface rounded-lg p-4 border-white/5 flex items-center gap-3'>
+					<RiUserFollowFill className='w-5 h-5 text-cyan-300' />
+					<div>
+						<p className='text-[11px] uppercase tracking-[0.2em] text-white/50'>Followers</p>
+						<p className='font-semibold'>{userProfile?.followers}</p>
+					</div>
 				</div>
-
-				{/* Following count */}
-				<div className='flex items-center gap-2 bg-glass rounded-lg p-2 flex-1 min-w-24'>
-					<RiUserFollowLine className='w-5 h-5 text-blue-800' />
-					<p className='text-xs'>Following: {userProfile?.following}</p>
+				<div className='surface rounded-lg p-4 border-white/5 flex items-center gap-3'>
+					<RiUserFollowLine className='w-5 h-5 text-cyan-300' />
+					<div>
+						<p className='text-[11px] uppercase tracking-[0.2em] text-white/50'>Following</p>
+						<p className='font-semibold'>{userProfile?.following}</p>
+					</div>
 				</div>
-
-				{/* Number of public repos */}
-				<div className='flex items-center gap-2 bg-glass rounded-lg p-2 flex-1 min-w-24'>
-					<RiGitRepositoryFill className='w-5 h-5 text-blue-800' />
-					<p className='text-xs'>Public repos: {userProfile?.public_repos}</p>
+				<div className='surface rounded-lg p-4 border-white/5 flex items-center gap-3'>
+					<RiGitRepositoryFill className='w-5 h-5 text-cyan-300' />
+					<div>
+						<p className='text-[11px] uppercase tracking-[0.2em] text-white/50'>Public repos</p>
+						<p className='font-semibold'>{userProfile?.public_repos}</p>
+					</div>
 				</div>
-
-				{/* Number of public gists */}
-				<div className='flex items-center gap-2 bg-glass rounded-lg p-2 flex-1 min-w-24'>
-					<RiGitRepositoryFill className='w-5 h-5 text-blue-800' />
-					<p className='text-xs'>Public gists: {userProfile?.public_gists}</p>
+				<div className='surface rounded-lg p-4 border-white/5 flex items-center gap-3'>
+					<RiGitRepositoryFill className='w-5 h-5 text-cyan-300' />
+					<div>
+						<p className='text-[11px] uppercase tracking-[0.2em] text-white/50'>Public gists</p>
+						<p className='font-semibold'>{userProfile?.public_gists}</p>
+					</div>
 				</div>
 			</div>
 		</div>
