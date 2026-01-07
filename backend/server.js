@@ -59,7 +59,7 @@ app.use(passport.session());
 // CORS configuration - allow frontend origin from environment variable
 const allowedOrigins = [
 	process.env.CLIENT_BASE_URL,
-	"http://localhost:3000", // Dev fallback
+	"http://localhost:3000", "https://inno-link-gamma.vercel.app", // Dev fallback
 ].filter(Boolean);
 
 // Log allowed origins on startup for debugging
