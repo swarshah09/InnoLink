@@ -123,12 +123,25 @@ After getting your Vercel frontend URL:
 
 ### Step 2: Update GitHub OAuth App
 
-1. Go to GitHub → Settings → Developer settings → OAuth Apps
-2. Edit your OAuth App:
-   - **Homepage URL**: `https://your-frontend.vercel.app`
-   - **Authorization callback URL**: `https://your-backend.onrender.com/api/auth/github/callback`
+**This step is CRITICAL - the OAuth callback URL must match exactly!**
 
-**Important**: The callback URL must point to your **backend URL**, not the frontend URL.
+1. Go to [GitHub.com](https://github.com) → Click your profile picture (top right) → **Settings**
+2. Scroll down to **Developer settings** (bottom left sidebar)
+3. Click **OAuth Apps** → Click on your OAuth App (or create a new one if needed)
+4. Update the following fields:
+   - **Homepage URL**: `https://your-frontend.vercel.app`
+     - Example: `https://inno-link-gamma.vercel.app`
+   - **Authorization callback URL**: `https://your-backend.onrender.com/api/auth/github/callback`
+     - Example: `https://innolink.onrender.com/api/auth/github/callback`
+     - ⚠️ **Must match exactly** - no trailing slashes, exact path `/api/auth/github/callback`
+5. Click **Update application**
+6. **Wait a few seconds** for GitHub to process the changes
+
+**Important Notes**:
+- The callback URL must point to your **backend URL** (Render), not the frontend URL
+- The URL must be exactly: `https://your-backend-url/api/auth/github/callback`
+- Make sure `BACKEND_URL` environment variable in Render matches your actual Render URL
+- If you see "redirect_uri is not associated with this application", the callback URL in GitHub doesn't match what's in your code
 
 ---
 
@@ -149,8 +162,11 @@ After getting your Vercel frontend URL:
 
 ### CORS Errors
 
-- Ensure `CLIENT_BASE_URL` in Render matches your Vercel URL exactly
+- Ensure `CLIENT_BASE_URL` in Render matches your Vercel URL exactly (e.g., `https://inno-link-gamma.vercel.app`)
 - Check that both URLs use HTTPS in production
+- **Important**: Do NOT include a trailing slash in `CLIENT_BASE_URL` (e.g., use `https://inno-link-gamma.vercel.app` not `https://inno-link-gamma.vercel.app/`)
+- Check Render logs to see what origin is being blocked
+- The CORS configuration normalizes origins (removes trailing slashes) for comparison
 
 ### Socket.IO Connection Issues
 
@@ -159,8 +175,40 @@ After getting your Vercel frontend URL:
 
 ### Authentication Issues
 
-- Verify GitHub OAuth callback URL matches exactly
-- Check that `CLIENT_BASE_URL` includes the protocol (`https://`)
+#### "redirect_uri is not associated with this application" Error
+
+This error means the callback URL in your GitHub OAuth App doesn't match what your backend is sending.
+
+**Fix Steps:**
+1. **Check your Render backend URL**: Go to Render Dashboard → Your Service → Copy the URL
+   - Example: `https://innolink.onrender.com`
+
+2. **Check Render environment variable**: 
+   - Go to Render → Environment → Verify `BACKEND_URL` is set
+   - Should be: `https://innolink.onrender.com` (no trailing slash)
+
+3. **Update GitHub OAuth App**:
+   - Go to GitHub → Settings → Developer settings → OAuth Apps → Your App
+   - Set **Authorization callback URL** to: `https://innolink.onrender.com/api/auth/github/callback`
+   - Click **Update application**
+   - Wait 10-30 seconds for changes to propagate
+
+4. **Verify the callback URL** in your code matches:
+   - The callback URL should be: `${BACKEND_URL}/api/auth/github/callback`
+   - Check Render logs to see what callback URL is being used
+
+5. **Clear browser cache** and try again
+
+**Common Mistakes:**
+- ❌ Adding trailing slash: `https://innolink.onrender.com/`
+- ❌ Wrong path: `/callback` instead of `/api/auth/github/callback`
+- ❌ Using frontend URL instead of backend URL
+- ❌ Not waiting for GitHub to update the OAuth app settings
+
+**Other Authentication Issues:**
+- Verify `CLIENT_BASE_URL` includes the protocol (`https://`)
+- Ensure `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` are correct in Render
+- Check Render logs for authentication errors
 
 ### API Connection Issues
 

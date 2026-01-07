@@ -22,11 +22,21 @@ passport.use(
 		{
 			clientID: process.env.GITHUB_CLIENT_ID,
 			clientSecret: process.env.GITHUB_CLIENT_SECRET,
-			callbackURL: process.env.BACKEND_URL 
-				? `${process.env.BACKEND_URL}/api/auth/github/callback`
-				: process.env.CLIENT_BASE_URL 
-					? `${process.env.CLIENT_BASE_URL}/api/auth/github/callback`
-					: "/api/auth/github/callback",
+			callbackURL: (() => {
+				// Prioritize BACKEND_URL, fallback to CLIENT_BASE_URL, then relative path
+				if (process.env.BACKEND_URL) {
+					const url = process.env.BACKEND_URL.replace(/\/$/, '') + '/api/auth/github/callback';
+					console.log(`GitHub OAuth callback URL: ${url}`);
+					return url;
+				}
+				if (process.env.CLIENT_BASE_URL) {
+					const url = process.env.CLIENT_BASE_URL.replace(/\/$/, '') + '/api/auth/github/callback';
+					console.log(`GitHub OAuth callback URL (using CLIENT_BASE_URL): ${url}`);
+					return url;
+				}
+				console.log('GitHub OAuth callback URL: /api/auth/github/callback (relative)');
+				return "/api/auth/github/callback";
+			})(),
 		},
 		async function (accessToken, refreshToken, profile, done) {
 			const user = await User.findOne({ username: profile.username });

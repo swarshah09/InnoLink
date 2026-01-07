@@ -58,22 +58,54 @@ app.use(passport.session());
 
 // CORS configuration - allow frontend origin from environment variable
 const allowedOrigins = [
-	process.env.CLIENT_BASE_URL || "http://localhost:3000",
+	process.env.CLIENT_BASE_URL,
 	"http://localhost:3000", // Dev fallback
 ].filter(Boolean);
+
+// Log allowed origins on startup for debugging
+console.log("CORS Configuration:");
+console.log("CLIENT_BASE_URL:", process.env.CLIENT_BASE_URL);
+console.log("Allowed origins:", allowedOrigins);
+
+// Normalize origins (remove trailing slashes and convert to lowercase for comparison)
+const normalizedOrigins = allowedOrigins.map(origin => origin.replace(/\/$/, '').toLowerCase());
+
+// Helper function to check if origin is allowed
+const isOriginAllowed = (origin) => {
+	if (!origin) return true; // Allow requests with no origin
+	
+	const normalizedOrigin = origin.replace(/\/$/, '').toLowerCase();
+	
+	// Check exact match
+	if (normalizedOrigins.includes(normalizedOrigin)) {
+		return true;
+	}
+	
+	// Check if any allowed origin matches (handles subdomains)
+	for (const allowed of normalizedOrigins) {
+		if (normalizedOrigin === allowed || normalizedOrigin.endsWith(allowed)) {
+			return true;
+		}
+	}
+	
+	return false;
+};
 
 app.use(
 	cors({
 		origin: (origin, callback) => {
-			// Allow requests with no origin (like mobile apps or curl requests)
-			if (!origin) return callback(null, true);
-			if (allowedOrigins.includes(origin)) {
+			if (isOriginAllowed(origin)) {
 				callback(null, true);
 			} else {
+				// Log for debugging
+				console.log(`CORS: Rejected origin: ${origin}`);
+				console.log(`CORS: Allowed origins: ${normalizedOrigins.join(', ')}`);
 				callback(new Error("Not allowed by CORS"));
 			}
 		},
 		credentials: true,
+		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	})
 );
 app.use(express.json());
@@ -82,8 +114,16 @@ app.use(express.urlencoded({ extended: true }));
 // socket.io for realtime chat + editor + terminal
 const io = new SocketIOServer(server, {
 	cors: {
-		origin: allowedOrigins,
+		origin: (origin, callback) => {
+			if (isOriginAllowed(origin)) {
+				callback(null, true);
+			} else {
+				console.log(`Socket.IO CORS: Rejected origin: ${origin}`);
+				callback(new Error("Not allowed by CORS"));
+			}
+		},
 		credentials: true,
+		methods: ['GET', 'POST'],
 	},
 });
 
