@@ -52,7 +52,38 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 8000;
 // const __dirname = path.resolve();
 
-app.use(session({ secret: "keyboard cat", resave: false, saveUninitialized: false }));
+// Session configuration for production
+const sessionConfig = {
+	secret: process.env.SESSION_SECRET || "keyboard cat",
+	resave: false,
+	saveUninitialized: false,
+	cookie: {
+		secure: true, // Always use secure cookies (HTTPS) - Render provides HTTPS
+		httpOnly: true,
+		maxAge: 24 * 60 * 60 * 1000, // 24 hours
+		sameSite: 'none', // Allow cross-site cookies (needed for Render backend + Vercel frontend)
+	},
+};
+
+// Try to use MongoDB store if available (async, won't block server start)
+if (process.env.MONGO_URI) {
+	import('connect-mongo').then((MongoStoreModule) => {
+		try {
+			const MongoStore = MongoStoreModule.default || MongoStoreModule;
+			sessionConfig.store = MongoStore.create({
+				mongoUrl: process.env.MONGO_URI,
+				ttl: 24 * 60 * 60, // 24 hours
+			});
+			console.log('✅ Using MongoDB session store');
+		} catch (error) {
+			console.warn('⚠️  MongoDB session store initialization failed, using memory store:', error.message);
+		}
+	}).catch((error) => {
+		console.warn('⚠️  connect-mongo package not available, using memory store:', error.message);
+	});
+}
+
+app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -106,6 +137,7 @@ app.use(
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
+		exposedHeaders: ['Set-Cookie'],
 	})
 );
 app.use(express.json());

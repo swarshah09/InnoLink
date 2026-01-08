@@ -11,9 +11,22 @@ router.get(
 		failureRedirect: (process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login" 
 	}),
 	function (req, res) {
+		if (!req.user) {
+			console.error("OAuth callback: No user in session");
+			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
+		}
+		
 		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
-		console.log(`OAuth success! Redirecting to: ${redirectUrl}`);
-		res.redirect(redirectUrl);
+		console.log(`OAuth success! User: ${req.user.username}, Redirecting to: ${redirectUrl}`);
+		
+		// Save session before redirect to ensure it persists
+		req.session.save((err) => {
+			if (err) {
+				console.error("Session save error:", err);
+				return res.redirect(redirectUrl + "/login?error=session_error");
+			}
+			res.redirect(redirectUrl);
+		});
 	}
 );
 
