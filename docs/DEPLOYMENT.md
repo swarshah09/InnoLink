@@ -56,9 +56,11 @@ GEMINI_API_KEY=your_gemini_api_key
 GEMINI_MODEL=gemini-pro
 ```
 
-**Important**: 
-- `CLIENT_BASE_URL`: Your Vercel frontend URL (set after deploying frontend)
-- `BACKEND_URL`: Your Render backend URL (set after deploying backend)
+**⚠️ CRITICAL - Required Environment Variables:**
+- `CLIENT_BASE_URL`: Your Vercel frontend URL (e.g., `https://inno-link-gamma.vercel.app`) - **NO trailing slash**
+- `BACKEND_URL`: Your Render backend URL (e.g., `https://innolink.onrender.com`) - **NO trailing slash** - **REQUIRED for OAuth to work!**
+
+**If `BACKEND_URL` is not set, OAuth will fail!** Make sure to set this after deploying your backend.
 
 ### Step 4: Deploy
 

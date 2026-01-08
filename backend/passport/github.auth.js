@@ -22,21 +22,35 @@ passport.use(
 		{
 			clientID: process.env.GITHUB_CLIENT_ID,
 			clientSecret: process.env.GITHUB_CLIENT_SECRET,
-			callbackURL: (() => {
-				// Prioritize BACKEND_URL, fallback to CLIENT_BASE_URL, then relative path
-				if (process.env.BACKEND_URL) {
-					const url = process.env.BACKEND_URL.replace(/\/$/, '') + '/api/auth/github/callback';
-					console.log(`GitHub OAuth callback URL: ${url}`);
-					return url;
-				}
-				if (process.env.CLIENT_BASE_URL) {
-					const url = process.env.CLIENT_BASE_URL.replace(/\/$/, '') + '/api/auth/github/callback';
-					console.log(`GitHub OAuth callback URL (using CLIENT_BASE_URL): ${url}`);
-					return url;
-				}
-				console.log('GitHub OAuth callback URL: /api/auth/github/callback (relative)');
-				return "/api/auth/github/callback";
-			})(),
+		callbackURL: (() => {
+			// Determine the correct callback URL
+			let callbackURL;
+			
+			// In production, always use BACKEND_URL if available
+			if (process.env.BACKEND_URL) {
+				callbackURL = process.env.BACKEND_URL.replace(/\/$/, '') + '/api/auth/github/callback';
+			} 
+			// Fallback: construct from CLIENT_BASE_URL if BACKEND_URL not set (dev/local)
+			else if (process.env.CLIENT_BASE_URL && process.env.NODE_ENV !== 'production') {
+				callbackURL = process.env.CLIENT_BASE_URL.replace(/\/$/, '') + '/api/auth/github/callback';
+			}
+			// Last resort: relative path (only for local dev)
+			else {
+				callbackURL = "/api/auth/github/callback";
+			}
+			
+			console.log('='.repeat(60));
+			console.log('GitHub OAuth Configuration:');
+			console.log(`BACKEND_URL: ${process.env.BACKEND_URL || 'NOT SET'}`);
+			console.log(`CLIENT_BASE_URL: ${process.env.CLIENT_BASE_URL || 'NOT SET'}`);
+			console.log(`NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+			console.log(`Callback URL: ${callbackURL}`);
+			console.log('='.repeat(60));
+			console.log('⚠️  IMPORTANT: Make sure this callback URL matches EXACTLY in GitHub OAuth App settings!');
+			console.log('='.repeat(60));
+			
+			return callbackURL;
+		})(),
 		},
 		async function (accessToken, refreshToken, profile, done) {
 			const user = await User.findOne({ username: profile.username });
