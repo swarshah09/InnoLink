@@ -12,25 +12,41 @@ router.get(
 	}),
 	function (req, res) {
 		if (!req.user) {
-			console.error("OAuth callback: No user in session");
+			console.error("[OAUTH CALLBACK] No user in session");
 			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
 		}
 		
-		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
-		console.log(`OAuth success! User: ${req.user.username}, Redirecting to: ${redirectUrl}`);
+		if (!req.isAuthenticated()) {
+			console.error("[OAUTH CALLBACK] User not authenticated after passport.authenticate");
+			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=not_authenticated");
+		}
 		
-		// Save session before redirect to ensure it persists
+		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
+		console.log(`[OAUTH CALLBACK] Success! User: ${req.user.username}, Session ID: ${req.sessionID}`);
+		
+		// Mark session as modified to ensure it's saved
+		req.session.userId = req.user._id || req.user.id;
+		req.session.touch();
+		
+		// Save session explicitly before redirect - CRITICAL for cross-domain
 		req.session.save((err) => {
 			if (err) {
-				console.error("Session save error:", err);
+				console.error("[OAUTH CALLBACK] Session save error:", err);
 				return res.redirect(redirectUrl + "/login?error=session_error");
 			}
-			res.redirect(redirectUrl);
+			
+			console.log(`[OAUTH CALLBACK] Session saved. Cookie will be set. Redirecting to: ${redirectUrl}`);
+			// Redirect with success flag so frontend can re-check auth
+			res.redirect(redirectUrl + "?oauth=success");
 		});
 	}
 );
 
 router.get("/check", (req, res) => {
+	console.log(`[AUTH CHECK] Session ID: ${req.sessionID}`);
+	console.log(`[AUTH CHECK] Is authenticated: ${req.isAuthenticated()}`);
+	console.log(`[AUTH CHECK] User: ${req.user ? req.user.username : 'null'}`);
+	
 	if (req.isAuthenticated()) {
 		res.send({ user: req.user });
 	} else {

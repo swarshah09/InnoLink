@@ -52,7 +52,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 8000;
 // const __dirname = path.resolve();
 
-// Session configuration for production
+// Session configuration - will be initialized with MongoDB store if available
 const sessionConfig = {
 	secret: process.env.SESSION_SECRET || "keyboard cat",
 	resave: false,
@@ -62,30 +62,28 @@ const sessionConfig = {
 		httpOnly: true,
 		maxAge: 24 * 60 * 60 * 1000, // 24 hours
 		sameSite: 'none', // Allow cross-site cookies (needed for Render backend + Vercel frontend)
+		path: '/', // Ensure cookie is available for all paths
 	},
 };
 
-// Try to use MongoDB store if available (async, won't block server start)
-if (process.env.MONGO_URI) {
-	import('connect-mongo').then((MongoStoreModule) => {
+// Initialize MongoDB session store - this mutates sessionConfig.store
+const initSessionStore = async () => {
+	if (process.env.MONGO_URI) {
 		try {
+			const MongoStoreModule = await import('connect-mongo');
 			const MongoStore = MongoStoreModule.default || MongoStoreModule;
 			sessionConfig.store = MongoStore.create({
 				mongoUrl: process.env.MONGO_URI,
 				ttl: 24 * 60 * 60, // 24 hours
+				autoRemove: 'native',
 			});
 			console.log('✅ Using MongoDB session store');
 		} catch (error) {
-			console.warn('⚠️  MongoDB session store initialization failed, using memory store:', error.message);
+			console.warn('⚠️  MongoDB session store not available, using memory store:', error.message);
+			console.warn('   Note: Memory store sessions will be lost on server restart');
 		}
-	}).catch((error) => {
-		console.warn('⚠️  connect-mongo package not available, using memory store:', error.message);
-	});
-}
-
-app.use(session(sessionConfig));
-app.use(passport.initialize());
-app.use(passport.session());
+	}
+};
 
 // CORS configuration - allow frontend origin from environment variable
 const allowedOrigins = [
@@ -505,18 +503,32 @@ termIo.on("connection", (socket) => {
 	});
 });
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/explore", exploreRoutes);
-app.use("/api/chat", chatRoutes);
-
-// Initialize PTY and start server
+// CRITICAL: Initialize MongoDB session store FIRST, then set up middleware
+// This ensures sessions are stored in MongoDB from the start
 (async () => {
-	// Initialize PTY before starting server
+	// Step 1: Initialize MongoDB session store FIRST
+	await initSessionStore();
+	
+	// Step 2: Set up session middleware with MongoDB store (if available)
+	app.use(session(sessionConfig));
+	app.use(passport.initialize());
+	app.use(passport.session());
+	
+	// Step 3: Register routes AFTER session middleware
+	app.use("/api/auth", authRoutes);
+	app.use("/api/users", userRoutes);
+	app.use("/api/explore", exploreRoutes);
+	app.use("/api/chat", chatRoutes);
+	
+	// Step 4: Initialize PTY
 	await initPTY();
 	
+	// Step 5: Start server
 	server.listen(PORT, () => {
 		console.log(`Server started on http://localhost:${PORT}`);
+		console.log(`Session secret: ${process.env.SESSION_SECRET ? 'SET' : 'NOT SET (using default)'}`);
+		console.log(`Cookie sameSite: none (cross-domain enabled)`);
+		console.log(`Cookie secure: true (HTTPS only)`);
 		if (ptyAvailable) {
 			console.log("✅ Terminal feature is available");
 		} else {
