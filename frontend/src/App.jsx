@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import LoginPage from "./pages/LoginPage";
 import SignUpPage from "./pages/SignUpPage";
+import LandingPage from "./pages/LandingPage";
 import HomePage from "./pages/HomePage";
 import ExplorePage from "./pages/ExplorePage";
 import LikesPage from "./pages/LikesPage";
@@ -46,19 +47,36 @@ function App() {
 	if (!authUser) {
 		return (
 			<div className='min-h-screen relative overflow-hidden text-white'>
-				<ShellOverlay />
-				<div className='relative z-10 flex min-h-screen'>
-					<Sidebar />
-					<main className='flex-1 flex items-center justify-center px-4 sm:px-8 py-10'>
-						<div className='w-full max-w-xl panel p-6 border-white/10'>
-							<Routes>
-								<Route path='/login' element={<LoginPage />} />
-								<Route path='/signup' element={<SignUpPage />} />
-								<Route path='*' element={<Navigate to={"/login"} replace />} />
-							</Routes>
+				<Routes>
+					<Route path='/' element={<LandingPage />} />
+					<Route path='/login' element={
+						<div className='min-h-screen relative overflow-hidden'>
+							<ShellOverlay />
+							<div className='relative z-10 flex min-h-screen'>
+								<Sidebar />
+								<main className='flex-1 flex items-center justify-center px-4 sm:px-8 py-10'>
+									<div className='w-full max-w-xl panel p-6 border-white/10'>
+										<LoginPage />
+									</div>
+								</main>
+							</div>
 						</div>
-					</main>
-				</div>
+					} />
+					<Route path='/signup' element={
+						<div className='min-h-screen relative overflow-hidden'>
+							<ShellOverlay />
+							<div className='relative z-10 flex min-h-screen'>
+								<Sidebar />
+								<main className='flex-1 flex items-center justify-center px-4 sm:px-8 py-10'>
+									<div className='w-full max-w-xl panel p-6 border-white/10'>
+										<SignUpPage />
+									</div>
+								</main>
+							</div>
+						</div>
+					} />
+					<Route path='*' element={<Navigate to={"/"} replace />} />
+				</Routes>
 				<Toaster position='top-right' toastOptions={{ style: { background: "#0B1224", color: "#f8fafc" } }} />
 			</div>
 		);
