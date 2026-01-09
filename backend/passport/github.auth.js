@@ -6,11 +6,18 @@ import User from "../models/user.model.js";
 dotenv.config();
 
 passport.serializeUser(function (user, done) {
-	done(null, user);
+	// Store only user ID in session (not entire Mongoose object)
+	done(null, user._id || user.id);
 });
 
-passport.deserializeUser(function (obj, done) {
-	done(null, obj);
+passport.deserializeUser(async function (id, done) {
+	try {
+		// Fetch user from database on each request
+		const user = await User.findById(id);
+		done(null, user);
+	} catch (error) {
+		done(error, null);
+	}
 });
 
 // Use the GitHubStrategy within Passport.

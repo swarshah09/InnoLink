@@ -10,7 +10,7 @@ router.get(
 	passport.authenticate("github", { 
 		failureRedirect: (process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login" 
 	}),
-	function (req, res) {
+	async function (req, res) {
 		if (!req.user) {
 			console.error("[OAUTH CALLBACK] No user in session");
 			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
@@ -24,28 +24,35 @@ router.get(
 		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
 		console.log(`[OAUTH CALLBACK] Success! User: ${req.user.username}, Session ID: ${req.sessionID}`);
 		
-		// Mark session as modified to ensure it's saved
-		req.session.userId = req.user._id || req.user.id;
-		req.session.touch();
-		
-		// Save session explicitly before redirect - CRITICAL for cross-domain
+		// passport.authenticate already logged the user in and created the session
+		// We just need to ensure the session is saved before redirecting
 		req.session.save((err) => {
 			if (err) {
 				console.error("[OAUTH CALLBACK] Session save error:", err);
 				return res.redirect(redirectUrl + "/login?error=session_error");
 			}
 			
-			console.log(`[OAUTH CALLBACK] Session saved. Cookie will be set. Redirecting to: ${redirectUrl}`);
-			// Redirect with success flag so frontend can re-check auth
+			console.log(`[OAUTH CALLBACK] Session saved. Session ID: ${req.sessionID}`);
+			console.log(`[OAUTH CALLBACK] Redirecting to: ${redirectUrl}?oauth=success`);
+			
+			// Redirect - express-session will automatically set the cookie in the response
 			res.redirect(redirectUrl + "?oauth=success");
 		});
 	}
 );
 
 router.get("/check", (req, res) => {
+	// Log incoming cookies for debugging
+	const cookies = req.headers.cookie || 'NO COOKIES';
 	console.log(`[AUTH CHECK] Session ID: ${req.sessionID}`);
+	console.log(`[AUTH CHECK] Cookies received: ${cookies.substring(0, 100)}...`);
 	console.log(`[AUTH CHECK] Is authenticated: ${req.isAuthenticated()}`);
 	console.log(`[AUTH CHECK] User: ${req.user ? req.user.username : 'null'}`);
+	
+	// Check if session exists in store
+	if (req.session && Object.keys(req.session).length > 0) {
+		console.log(`[AUTH CHECK] Session data exists: ${JSON.stringify(Object.keys(req.session))}`);
+	}
 	
 	if (req.isAuthenticated()) {
 		res.send({ user: req.user });

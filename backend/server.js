@@ -56,13 +56,15 @@ const PORT = process.env.PORT || 8000;
 const sessionConfig = {
 	secret: process.env.SESSION_SECRET || "keyboard cat",
 	resave: false,
-	saveUninitialized: false,
+	saveUninitialized: false, // Only create session when something is stored
+	name: 'connect.sid', // Explicit cookie name
 	cookie: {
-		secure: true, // Always use secure cookies (HTTPS) - Render provides HTTPS
-		httpOnly: true,
+		secure: true, // REQUIRED for sameSite: 'none' (HTTPS only)
+		httpOnly: true, // Prevent XSS attacks
 		maxAge: 24 * 60 * 60 * 1000, // 24 hours
-		sameSite: 'none', // Allow cross-site cookies (needed for Render backend + Vercel frontend)
-		path: '/', // Ensure cookie is available for all paths
+		sameSite: 'none', // Allow cross-site cookies (Render backend + Vercel frontend)
+		path: '/', // Cookie available for all paths
+		// DO NOT set domain - browser will automatically set it for cross-domain
 	},
 };
 
@@ -134,8 +136,10 @@ app.use(
 		},
 		credentials: true,
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-		allowedHeaders: ['Content-Type', 'Authorization'],
+		allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 		exposedHeaders: ['Set-Cookie'],
+		preflightContinue: false,
+		optionsSuccessStatus: 204,
 	})
 );
 app.use(express.json());
