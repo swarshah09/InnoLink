@@ -10,7 +10,7 @@ router.get(
 	passport.authenticate("github", { 
 		failureRedirect: (process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login" 
 	}),
-	async function (req, res) {
+	function (req, res) {
 		if (!req.user) {
 			console.error("[OAUTH CALLBACK] No user in session");
 			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
@@ -24,8 +24,10 @@ router.get(
 		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
 		console.log(`[OAUTH CALLBACK] Success! User: ${req.user.username}, Session ID: ${req.sessionID}`);
 		
-		// passport.authenticate already logged the user in and created the session
-		// We just need to ensure the session is saved before redirecting
+		// Mark session as modified to ensure it's saved
+		req.session.touch();
+		
+		// CRITICAL: Save session before redirect - cookie will be set automatically by express-session
 		req.session.save((err) => {
 			if (err) {
 				console.error("[OAUTH CALLBACK] Session save error:", err);
@@ -33,10 +35,8 @@ router.get(
 			}
 			
 			console.log(`[OAUTH CALLBACK] Session saved. Session ID: ${req.sessionID}`);
-			console.log(`[OAUTH CALLBACK] Redirecting to: ${redirectUrl}?oauth=success`);
-			
-			// Redirect - express-session will automatically set the cookie in the response
-			res.redirect(redirectUrl + "?oauth=success");
+			// Redirect - express-session middleware will add Set-Cookie header automatically
+			res.redirect(302, redirectUrl + "?oauth=success");
 		});
 	}
 );

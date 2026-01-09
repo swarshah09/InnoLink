@@ -56,7 +56,7 @@ const PORT = process.env.PORT || 8000;
 const sessionConfig = {
 	secret: process.env.SESSION_SECRET || "keyboard cat",
 	resave: false,
-	saveUninitialized: false, // Only create session when something is stored
+	saveUninitialized: true, // Create session even if nothing is stored (needed for passport)
 	name: 'connect.sid', // Explicit cookie name
 	cookie: {
 		secure: true, // REQUIRED for sameSite: 'none' (HTTPS only)
@@ -64,7 +64,7 @@ const sessionConfig = {
 		maxAge: 24 * 60 * 60 * 1000, // 24 hours
 		sameSite: 'none', // Allow cross-site cookies (Render backend + Vercel frontend)
 		path: '/', // Cookie available for all paths
-		// DO NOT set domain - browser will automatically set it for cross-domain
+		// DO NOT set domain - let browser handle it automatically
 	},
 };
 
@@ -128,13 +128,11 @@ app.use(
 			if (isOriginAllowed(origin)) {
 				callback(null, true);
 			} else {
-				// Log for debugging
 				console.log(`CORS: Rejected origin: ${origin}`);
-				console.log(`CORS: Allowed origins: ${normalizedOrigins.join(', ')}`);
 				callback(new Error("Not allowed by CORS"));
 			}
 		},
-		credentials: true,
+		credentials: true, // CRITICAL: Allow cookies to be sent
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
 		exposedHeaders: ['Set-Cookie'],

@@ -16,12 +16,14 @@ export const AuthContextProvider = ({ children }) => {
 	const checkUserLoggedIn = async () => {
 		setLoading(true);
 		try {
+			// CRITICAL: credentials: "include" is required for cross-domain cookies
 			const res = await fetch(`${API_URL}/api/auth/check`, { 
-				credentials: "include",
+				credentials: "include", // REQUIRED for cookies to be sent
 				method: 'GET',
 				headers: {
 					'Content-Type': 'application/json',
 				},
+				mode: 'cors', // Explicitly set CORS mode
 			});
 			const data = await res.json();
 			if (data.user) {
