@@ -8,35 +8,56 @@ router.get("/github", passport.authenticate("github", { scope: ["user:email"] })
 router.get(
 	"/github/callback",
 	passport.authenticate("github", { 
-		failureRedirect: (process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login" 
+		failureRedirect: (process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed" 
 	}),
 	function (req, res) {
 		if (!req.user) {
 			console.error("[OAUTH CALLBACK] No user in session");
-			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
+			// Clear any existing session before redirect
+			req.session.destroy(() => {
+				res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=auth_failed");
+			});
+			return;
 		}
 		
 		if (!req.isAuthenticated()) {
 			console.error("[OAUTH CALLBACK] User not authenticated after passport.authenticate");
-			return res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=not_authenticated");
+			req.session.destroy(() => {
+				res.redirect((process.env.CLIENT_BASE_URL || "http://localhost:3000") + "/login?error=not_authenticated");
+			});
+			return;
 		}
 		
 		const redirectUrl = process.env.CLIENT_BASE_URL || "http://localhost:3000";
 		console.log(`[OAUTH CALLBACK] Success! User: ${req.user.username}, Session ID: ${req.sessionID}`);
 		
-		// Mark session as modified to ensure it's saved
-		req.session.touch();
-		
-		// CRITICAL: Save session before redirect - cookie will be set automatically by express-session
-		req.session.save((err) => {
-			if (err) {
-				console.error("[OAUTH CALLBACK] Session save error:", err);
+		// Regenerate session to avoid fixation attacks and clear old cookies
+		req.session.regenerate((regenErr) => {
+			if (regenErr) {
+				console.error("[OAUTH CALLBACK] Session regenerate error:", regenErr);
 				return res.redirect(redirectUrl + "/login?error=session_error");
 			}
 			
-			console.log(`[OAUTH CALLBACK] Session saved. Session ID: ${req.sessionID}`);
-			// Redirect - express-session middleware will add Set-Cookie header automatically
-			res.redirect(302, redirectUrl + "?oauth=success");
+			// Log user in again after regeneration
+			req.login(req.user, (loginErr) => {
+				if (loginErr) {
+					console.error("[OAUTH CALLBACK] req.login error after regenerate:", loginErr);
+					return res.redirect(redirectUrl + "/login?error=login_error");
+				}
+				
+				// Mark session as modified and save
+				req.session.touch();
+				req.session.save((saveErr) => {
+					if (saveErr) {
+						console.error("[OAUTH CALLBACK] Session save error:", saveErr);
+						return res.redirect(redirectUrl + "/login?error=session_error");
+					}
+					
+					console.log(`[OAUTH CALLBACK] Session regenerated and saved. New Session ID: ${req.sessionID}`);
+					// Redirect - express-session will set cookie with new session ID
+					res.redirect(302, redirectUrl + "?oauth=success");
+				});
+			});
 		});
 	}
 );

@@ -42,33 +42,39 @@ export const AuthContextProvider = ({ children }) => {
 	};
 
 	useEffect(() => {
-		// Check immediately on mount
-		checkUserLoggedIn();
+		const urlParams = new URLSearchParams(window.location.search);
+		const oauthSuccess = urlParams.get('oauth') === 'success';
+		const oauthError = urlParams.get('error');
 		
-		// Check again after a short delay (for OAuth redirect cases)
-		const timeoutId = setTimeout(() => {
+		// Clear URL parameters
+		if (oauthSuccess || oauthError) {
+			window.history.replaceState({}, '', window.location.pathname);
+		}
+		
+		// If OAuth error, clear any stale cookies and try fresh login
+		if (oauthError) {
+			console.log('OAuth error detected, clearing cookies and retrying...');
+			// Clear cookies for the backend domain
+			document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.onrender.com; SameSite=None; Secure';
+			document.cookie = 'connect.sid=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None; Secure';
+			setTimeout(() => checkUserLoggedIn(), 1000);
+		} else {
+			// Normal flow - check immediately
 			checkUserLoggedIn();
-		}, 1500);
+			
+			// Check again after delay for OAuth success
+			if (oauthSuccess) {
+				setTimeout(() => checkUserLoggedIn(), 1000);
+			}
+		}
 		
-		// Check on window focus (helps after OAuth redirect)
+		// Check on window focus
 		const handleFocus = () => {
 			checkUserLoggedIn();
 		};
 		window.addEventListener('focus', handleFocus);
 		
-		// Check if URL has oauth=success parameter (after GitHub redirect)
-		const urlParams = new URLSearchParams(window.location.search);
-		if (urlParams.get('oauth') === 'success') {
-			// Clear the parameter from URL
-			window.history.replaceState({}, '', window.location.pathname);
-			// Check auth status after a brief delay to allow cookie to be set
-			setTimeout(() => {
-				checkUserLoggedIn();
-			}, 500);
-		}
-		
 		return () => {
-			clearTimeout(timeoutId);
 			window.removeEventListener('focus', handleFocus);
 		};
 	}, []);
