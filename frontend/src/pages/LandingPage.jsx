@@ -95,28 +95,30 @@ const LandingPage = () => {
 			<nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/10">
 				<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 					<div className="flex items-center justify-between h-16">
-						<div className="flex items-center gap-3">
-							<div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-900/30">
-								<img className="h-6 w-6" src="/logo.png" alt="InnoLink Logo" />
+						<div className="flex items-center gap-2 sm:gap-3">
+							<div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-900/30 flex-shrink-0">
+								<img className="h-5 w-5 sm:h-6 sm:w-6" src="/logo.png" alt="InnoLink Logo" />
 							</div>
 							<div className="flex flex-col leading-tight">
-								<span className="text-xs uppercase tracking-[0.25em] text-white/60">Innovation</span>
-								<span className="text-sm font-semibold">InnoLink</span>
+								<span className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-white/60 hidden xs:block">Innovation</span>
+								<span className="text-xs sm:text-sm font-semibold">InnoLink</span>
 							</div>
 						</div>
-						<div className="flex items-center gap-3">
+						<div className="flex items-center gap-2 sm:gap-3">
 							<button
 								onClick={() => navigate('/login')}
-								className="btn-ghost text-sm"
+								className="btn-ghost text-xs sm:text-sm px-3 py-1.5 sm:px-3 sm:py-2"
 							>
-								Sign In
+								<span className="hidden sm:inline">Sign In</span>
+								<span className="sm:hidden">Login</span>
 							</button>
 							<button
 								onClick={handleLoginWithGithub}
-								className="btn-primary text-sm flex items-center gap-2"
+								className="btn-primary text-xs sm:text-sm px-3 py-1.5 sm:px-4 sm:py-2 flex items-center gap-1.5 sm:gap-2"
 							>
-								<FaGithub size={16} />
-								Get Started
+								<FaGithub size={14} className="sm:w-4 sm:h-4" />
+								<span className="hidden xs:inline">Get Started</span>
+								<span className="xs:hidden">Start</span>
 							</button>
 						</div>
 					</div>
@@ -147,21 +149,21 @@ const LandingPage = () => {
 							<span className="text-lg text-white/60 mt-2 block">Everything you need to code better, together.</span>
 						</p>
 
-						<div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+						<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 mb-12 w-full sm:w-auto">
 							<button
 								onClick={handleLoginWithGithub}
-								className="btn-primary text-lg px-8 py-4 flex items-center gap-3 group"
+								className="btn-primary text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 flex items-center justify-center gap-2 sm:gap-3 group w-full sm:w-auto"
 							>
-								<FaGithub size={20} className="group-hover:rotate-12 transition-transform" />
-								<span>Continue with GitHub</span>
-								<FaRocket size={16} className="group-hover:translate-x-1 transition-transform" />
+								<FaGithub size={18} className="sm:w-5 sm:h-5 group-hover:rotate-12 transition-transform flex-shrink-0" />
+								<span className="whitespace-nowrap">Continue with GitHub</span>
+								<FaRocket size={14} className="sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform hidden sm:block" />
 							</button>
 							<button
 								onClick={scrollToFeatures}
-								className="btn-ghost text-lg px-8 py-4 flex items-center gap-2"
+								className="btn-ghost text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 flex items-center justify-center gap-2 w-full sm:w-auto"
 							>
-								Learn More
-								<FaChevronDown className="animate-bounce" />
+								<span>Learn More</span>
+								<FaChevronDown size={14} className="sm:w-4 sm:h-4 animate-bounce" />
 							</button>
 						</div>
 					</div>
@@ -291,18 +293,18 @@ const LandingPage = () => {
 						<p className="text-xl text-white/70 mb-10 max-w-2xl mx-auto">
 							Join developers worldwide who are already building better code together with InnoLink.
 						</p>
-						<div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+						<div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
 							<button
 								onClick={handleLoginWithGithub}
-								className="btn-primary text-lg px-10 py-4 flex items-center gap-3 group"
+								className="btn-primary text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-4 flex items-center justify-center gap-2 sm:gap-3 group w-full sm:w-auto"
 							>
-								<FaGithub size={20} />
-								<span>Get Started Free</span>
-								<FaRocket size={16} className="group-hover:translate-x-1 transition-transform" />
+								<FaGithub size={18} className="sm:w-5 sm:h-5 flex-shrink-0" />
+								<span className="whitespace-nowrap">Get Started Free</span>
+								<FaRocket size={14} className="sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform hidden sm:block" />
 							</button>
 							<Link
 								to="/login"
-								className="btn-ghost text-lg px-10 py-4"
+								className="btn-ghost text-base sm:text-lg px-6 sm:px-10 py-3 sm:py-4 text-center w-full sm:w-auto"
 							>
 								Sign In
 							</Link>

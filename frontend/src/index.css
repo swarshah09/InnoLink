@@ -82,11 +82,11 @@ body::before {
 	}
 
 	.btn-primary {
-		@apply inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 px-4 py-2 font-semibold text-white shadow-lg shadow-cyan-900/40 transition hover:scale-[0.99] hover:shadow-cyan-500/25 active:scale-[0.97];
+		@apply inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-500 px-4 py-2 font-semibold text-white shadow-lg shadow-cyan-900/40 transition hover:scale-[0.99] hover:shadow-cyan-500/25 active:scale-[0.97] min-w-fit;
 	}
 
 	.btn-ghost {
-		@apply inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-sm text-white/90 transition hover:border-cyan-400/60 hover:text-white hover:bg-white/5;
+		@apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-sm text-white/90 transition hover:border-cyan-400/60 hover:text-white hover:bg-white/5 min-w-fit;
 	}
 
 	.field {
